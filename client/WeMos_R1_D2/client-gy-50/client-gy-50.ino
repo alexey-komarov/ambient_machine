@@ -6,10 +6,7 @@
 
 const char *ssid = "amb_machine_v1";
 const char *password = "ambmachineV1";
-const char *host = "192.168.8.1";
-const uint16_t port = 80;
-
-char url[32];
+const char *url = "http://192.168.43.77:9000/";
 
 const int ledPin = LED_BUILTIN;
 int ledState = LOW;
@@ -17,7 +14,6 @@ int ledState = LOW;
 L3G gyro;
 
 void setup() {
-	sprintf(url, "http://%s:%d", host, port);
 	pinMode(ledPin, OUTPUT);
 
 	WiFi.mode(WIFI_STA);
@@ -55,7 +51,7 @@ void loop() {
 	int z = (int)gyro.g.z;
 
 	char params[64];
-	sprintf(params, "x=%d&y=%d&z=%d", x, y, z);
+	sprintf(params, "id=7&gx=%d&gy=%d&gz=%d", x, y, z);
 	bool ok = false;
 
 	if (http.begin(client, url)) {
