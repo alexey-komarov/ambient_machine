@@ -11,7 +11,7 @@ function create(port) {
 		if(request.method == 'POST') {
 			processPost(request, response, () => {
 				request.post.timestamp = Date.now();
-                request.post.id = request.post.id || '0';
+				request.post.id = request.post.id || '0';
 				emitter.emit('data', request.post);
 				response.writeHead(200, 'OK', {'Content-Type': 'text/plain'});
 				response.end();
