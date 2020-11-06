@@ -1,7 +1,7 @@
 `use strict`
 
 const ambient = require('./lib/ambient').create(true);
-const scale = ambient.getScale(ambient.scales.major, 1, 1, 6);
+const scale = ambient.getScale(ambient.scales.minor, 0, 0, 6);
 const playNoteInScale = ambient.playNoteInScale.bind(ambient);
 const gyroQueues = require('./lib/gyroQueues');
 
@@ -17,6 +17,8 @@ let tick = 100;
 let speed1 = 1;
 let speed2 = 1;
 let minDelay = 100;
+let sign1 = 1;
+let sign2 = 1;
 
 function player() {
 	let played = false;
@@ -38,6 +40,14 @@ function player() {
 					note[0].apply(note[0], note[1])
 				}, (minDelay * (r + 1)));
 			}
+		}
+
+		if (sign1 < 1) {
+			note[1][2] += 7
+		}
+
+		if (sign2 < 1) {
+			note[1][2] += 7
 		}
 
 		note[0].apply(note[0], note[1])
@@ -180,33 +190,27 @@ function getMatrixGenerator2() {
 	}
 }
 
-let p1 = createPattern(24, [0, Math.PI / 2], i => Math.cos(i)     / 2 + 0.5);
-let p2 = createPattern(24, [0, Math.PI / 2], i => Math.sin(i)     / 2 + 0.5);
-let p3 = createPattern(24, [0, Math.PI / 2], i => Math.cos(i / 2) / 2 + 0.5);
-let p4 = createPattern(24, [0, Math.PI / 2], i => Math.sin(i / 3) / 2 + 0.5);
+let p1 = createPattern(24, [0, Math.PI / 4], i => Math.cos(i)     / 2 + 0.7);
+let p2 = createPattern(24, [0, Math.PI / 4], i => Math.sin(i)     / 2 + 0.7);
+let p3 = createPattern(24, [0, Math.PI / 2], i => Math.cos(i / 2) / 2 + 0.7);
+let p4 = createPattern(24, [0, Math.PI / 2], i => Math.sin(i / 3) / 2 + 0.7);
 
 const getMatrix1 = getMatrixGenerator1();
 
 const pressLen = 5000;
 
-
-function play3r() {
+function play3r(div, baseNote) {
 	const matrix = getMatrix1();
-	const delays = new Array(8).fill(1);
 
-	for (let i = 0; i < speed2; i++) {
-		delays[Math.round(Math.random() * 7)]++;
-	}
+	reverb(len, div, p1, matrix[0], 1, 0.5, playNoteInScale, [0, scale,  0 + baseNote,      90,  pressLen]);
+	reverb(len, div, p2, matrix[1], 1, 0.5, playNoteInScale, [1, scale,  2 + baseNote,      90,  pressLen]);
+	reverb(len, div, p3, matrix[2], 1, 0.5, playNoteInScale, [2, scale,  4 + baseNote,      90,  pressLen]);
+	reverb(len, div, p4, matrix[3], 1, 0.5, playNoteInScale, [3, scale,  5 + baseNote,      90,  pressLen]);
 
-	reverb(len, 24, p1, matrix[0], 1, 1, playNoteInScale, [0, scale,  0,      50,  pressLen]);
-	reverb(len, 27, p2, matrix[1], 1, 1, playNoteInScale, [1, scale,  2,      50,  pressLen]);
-	reverb(len, 24, p3, matrix[2], 1, 1, playNoteInScale, [2, scale,  4,      50,  pressLen]);
-	reverb(len, 39, p4, matrix[3], 1, 1, playNoteInScale, [3, scale,  6,      50,  pressLen]);
-
-	reverb(len, 24, p1, matrix[4], 1, 1, playNoteInScale, [4, scale,  0 + 14, 70,  pressLen]);
-	reverb(len, 27, p2, matrix[5], 1, 1, playNoteInScale, [5, scale,  2 + 14, 70,  pressLen]);
-	reverb(len, 29, p3, matrix[6], 1, 1, playNoteInScale, [6, scale,  4 + 14, 70,  pressLen]);
-	reverb(len, 27, p4, matrix[7], 1, 1, playNoteInScale, [7, scale,  6 + 14, 70,  pressLen]);
+	reverb(len, div, p1, matrix[4], 1, 0.5, playNoteInScale, [4, scale,  5 + 14 + baseNote, 110,  pressLen]);
+	reverb(len, div, p2, matrix[5], 1, 0.5, playNoteInScale, [5, scale,  4 + 7 + baseNote,  110,  pressLen]);
+	reverb(len, div, p3, matrix[6], 1, 0.5, playNoteInScale, [6, scale,  2 + 14 + baseNote, 110,  pressLen]);
+	reverb(len, div, p4, matrix[7], 1, 0.5, playNoteInScale, [7, scale,  0 + 7 + baseNote,  110,  pressLen]);
 }
 
 function play(preset, len1, delay1) {
@@ -222,23 +226,90 @@ function play(preset, len1, delay1) {
 	preset();
 }
 
-play(play3r, 30000 * 5, 600);
+play(play3r.bind(this, 24, 0), 30000 * 3, 250);
+play(play3r.bind(this, 24, 4), 30000 * 2, 250);
 
 setInterval(() => {
 	let x1 = gQueue.getValue(1, 'y') || 0;
 	let x2 = gQueue.getValue(2, 'y') || 0;
+	x1 = x1 + 200;
+
+	sign1 = Math.round(x1 / 100) < 0 ? -1 : 1;
 
 	x1 = Math.sqrt(Math.abs(x1));
-	x1 = Math.sqrt(x1 * Math.log(x1 + 50)) - 13;
-	x1 = Math.round(Math.abs(1 + x1));
-	x1 = Math.min(x1, 200);
-	x1 = Math.max(x1, 1);
+	x1 = x1 * Math.log(x1 + 2000);
+
+	x1 = Math.round(Math.abs(x1));
+	x1 = Math.round(x1 / 12) - 5;
+	x1 = Math.min(x1, 127);
+
+	ambient.cc(14, 0, x1);
+	ambient.cc(14, 1, 127 - x1);
+	ambient.cc(14, 2, Math.max(0, Math.min(127, Math.round(x1 / 2 * sign1 + 64))));
+
+	sign2 = Math.round(x2 / 100) < 0 ? -1 : 1;
 
 	x2 = Math.sqrt(Math.abs(x2));
-	x2 = Math.sqrt(x2 * Math.log(x2 + 50)) - 6;
+	x2 = x2 * Math.log(x2 + 2000);
+
 	x2 = Math.round(Math.abs(x2));
-	x2 = Math.min(x2, 200);
-	x2 = Math.max(x2, 1);
-	speed1 = x1 / 5 + 1;
-	speed2 = x2;
+	x2 = Math.round(x2 / 12) - 5;
+	x2 = Math.min(x2, 127);
+
+	ambient.cc(15, 0, x2);
+	ambient.cc(15, 1, 127 - x2);
+	let cc2 = Math.max(0, Math.min(127, Math.round(x2 / 2 * sign2 + 64)))
+	ambient.cc(15, 2, cc2);
+	speed1 = x1 / 25;
+	speed1 = Math.max(speed1, 0.6);
+	speed2 = x2 / 5;
+	speed2 = Math.max(speed2, 0.4);
+}, 100);
+
+const ccs = new Array(8);
+
+for (let n = 0; n < 8; n++) {
+	ccs[n] = n / 1.27;
+}
+
+function getCoords(i, shift) {
+	x = Math.round(Math.sin((i + shift) / 1.27) * 63);
+	y = Math.round(Math.cos((i + shift) / 1.27) * 63);
+	return [x, y];
+}
+
+let k = 0;
+
+let posX = 0;
+let posY = 64;
+
+setInterval(() => {
+	for (let i = 0; i < 8; i++) {
+		let coords = getCoords(ccs[i], k);
+
+		let x = coords[0];
+		let y = coords[1];
+
+		x = x - posX;
+
+		if (posY < y) {
+			y = y - posY;
+		} else {
+			y = posY - y;
+		}
+
+		let pan = x + 64;
+		let vol = 127 - y;
+
+		vol = Math.max(vol, 0);
+
+		ambient.cc(i, 0, vol);
+		ambient.cc(i, 1, pan);
+	}
+
+	if (sign1 == 1) {
+		k += speed1 / 50;
+	} else {
+		k -= speed1 / 50;
+	}
 }, 100);

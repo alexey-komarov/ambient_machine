@@ -6,6 +6,7 @@ const scales = {
 	major:                  [2, 2, 1, 2, 2, 2],
 	minor:                  [2, 1, 2, 2, 1, 2],
 	harmonicMajor:          [2, 2, 1, 2, 1, 3],
+	harmonicMinor:          [2, 1, 2, 2, 1, 3],
 };
 
 const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
@@ -78,7 +79,9 @@ function printQueue() {
 	}
 
 	const line = new Array(120).fill(' ');
+
 	queue.forEach(n => line[n[1][1]] = nameNote(n[1][1]));
+
 	console.log(line.join(''));
 }
 
@@ -89,7 +92,7 @@ function trap() {
 	copy.forEach(args => _playNote.apply(args[0], args[1]));;
 }
 
-setInterval(trap, 25);
+setInterval(trap, 15);
 
 function pc(chan, prg) {
 	this.output.sendMessage([192 + chan, prg]);
