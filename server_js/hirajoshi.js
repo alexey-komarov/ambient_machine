@@ -246,7 +246,7 @@ setInterval(() => {
 	ambient.cc(14, 0, x1);
 	ambient.cc(14, 1, 127 - x1);
 	ambient.cc(14, 2, Math.max(0, Math.min(127, Math.round(x1 / 2 * sign1 + 64))));
-console.log(x1);
+
 	sign2 = Math.round(x2 / 100) < 0 ? -1 : 1;
 
 	x2 = Math.sqrt(Math.abs(x2));
