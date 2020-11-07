@@ -7,6 +7,7 @@ const scales = {
 	minor:                  [2, 1, 2, 2, 1, 2],
 	harmonicMajor:          [2, 2, 1, 2, 1, 3],
 	harmonicMinor:          [2, 1, 2, 2, 1, 3],
+	hirajoshi:              [2, 1, 4, 1]
 };
 
 const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
