@@ -33,6 +33,7 @@ function create(debug) {
 		playNotes: playNotes,
 		nameNote: nameNote,
 		nameNotes: nameNotes,
+		getEuclideanRhythm: getEuclideanRhythm,
 		pc: pc,
 		cc: cc,
 		debug: debug,
@@ -74,14 +75,14 @@ function playNote(...args) {
 	}
 }
 
+const colors = [31, 91, 32, 92, 33, 93, 34, 94, 35, 95, 36, 96, 37, 97, 37, 37];
 function printQueue() {
 	if (queue.length < 1) {
 		return;
 	}
 
 	const line = new Array(120).fill(' ');
-
-	queue.forEach(n => line[n[1][1]] = nameNote(n[1][1]));
+	queue.forEach(n => line[n[1][1]] = '\033[' + colors[n[1][0]] + 'm' + nameNote(n[1][1]) + '\033[37m');
 
 	console.log(line.join(''));
 }
@@ -202,6 +203,25 @@ function createQueue(interval) {
 	}, interval);
 
 	return queue;
+}
+
+function _getEuclideanRhythm(m, k, input) {
+	input = input || new Array(m).fill('1').concat(new Array(k).fill('0'));
+	const output = [];
+
+	for (let i = 0; i < Math.min(m, k); i++) {
+		output.push(input.shift() + input.pop());
+	}
+
+	if (input.length > 1) {
+		return _getEuclideanRhythm(output.length, input.length, output.concat(input));
+	}
+
+	return output.concat(input);
+}
+
+function getEuclideanRhythm(x, total) {
+	return _getEuclideanRhythm(x, total - x).join('');
 }
 
 module.exports = {
