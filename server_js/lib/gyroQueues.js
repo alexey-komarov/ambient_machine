@@ -91,7 +91,7 @@ function normalize(queue, start, end) {
 	const result = {};
 
 	queue.slice(start, end).forEach(i => {
-		['gx', 'gy', 'gz'].forEach(axis => {
+		['gx', 'gy', 'gz', 'cx', 'cy', 'cz', 'ax', 'ay', 'az', 'gt'].forEach(axis => {
 			result[axis] = (result[axis] || 0) + i[axis];
 		});
 	});
